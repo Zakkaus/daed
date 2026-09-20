@@ -46,7 +46,9 @@ loader.config({ monaco })
 
 // LSP Client instance (singleton)
 let lspClient: MonacoLspClient | null = null
-let lspInitialized = false
+// The in-flight initialization is shared: two editors mounting together must
+// not each start a worker and register the providers twice.
+let lspInit: Promise<void> | null = null
 
 // Cache for dynamic completion items (set before LSP client is initialized)
 let pendingDynamicCompletionItems: RoutingACompletionItem[] = []
@@ -86,63 +88,64 @@ function registerDnsALanguage(monacoInstance: Monaco): void {
 /**
  * Initialize the DAE LSP client
  */
-async function initLspClient(monacoInstance: Monaco): Promise<void> {
-  if (lspInitialized) return
-
-  try {
-    // Create worker using Vite's ?worker import (returns a Worker constructor)
-    const worker = new DaeLspWorker() as Worker
-
-    // Create LSP client with the worker instance
-    lspClient = new MonacoLspClient(worker)
-
-    // Initialize the LSP connection
-    await lspClient.initialize()
-
-    // Register Monaco providers
-    lspClient.registerProviders(monacoInstance as unknown as typeof monacoEditor, 'routingA')
-
-    // Apply any pending dynamic completion items that were set before LSP was initialized
-    if (pendingDynamicCompletionItems.length > 0) {
-      lspClient.setDynamicCompletionItems(
-        pendingDynamicCompletionItems.map((item) => ({
-          label: item.label,
-          kind: item.kind === 'variable' ? 6 : 14, // Variable or Keyword
-          detail: item.detail,
-          documentation: item.documentation,
-          insertText: item.insertText,
-        })),
-      )
-    }
-
-    // Set up diagnostics handling
-    lspClient.onDiagnostics((uri, diagnostics) => {
-      const model = monacoInstance.editor
-        .getModels()
-        .find((m: monacoEditor.editor.ITextModel) => m.uri.toString() === uri)
-      if (model) {
-        const markers = diagnostics.map((d) => ({
-          severity:
-            d.severity === DiagnosticSeverity.Error
-              ? monacoInstance.MarkerSeverity.Error
-              : d.severity === DiagnosticSeverity.Warning
-                ? monacoInstance.MarkerSeverity.Warning
-                : monacoInstance.MarkerSeverity.Info,
-          startLineNumber: d.range.start.line + 1,
-          startColumn: d.range.start.character + 1,
-          endLineNumber: d.range.end.line + 1,
-          endColumn: d.range.end.character + 1,
-          message: d.message,
-          source: d.source || 'dae',
-        }))
-        monacoInstance.editor.setModelMarkers(model, 'dae', markers)
-      }
-    })
-
-    lspInitialized = true
-  } catch (error) {
+function initLspClient(monacoInstance: Monaco): Promise<void> {
+  lspInit ??= startLspClient(monacoInstance).catch((error) => {
+    lspInit = null
     console.error('Failed to initialize DAE LSP client:', error)
+  })
+  return lspInit
+}
+
+async function startLspClient(monacoInstance: Monaco): Promise<void> {
+  // Create worker using Vite's ?worker import (returns a Worker constructor)
+  const worker = new DaeLspWorker() as Worker
+
+  // Create LSP client with the worker instance
+  lspClient = new MonacoLspClient(worker)
+
+  // Initialize the LSP connection
+  await lspClient.initialize()
+
+  // Register Monaco providers
+  lspClient.registerProviders(monacoInstance as unknown as typeof monacoEditor, 'routingA')
+
+  // Apply any pending dynamic completion items that were set before LSP was initialized
+  if (pendingDynamicCompletionItems.length > 0) {
+    lspClient.setDynamicCompletionItems(
+      pendingDynamicCompletionItems.map((item) => ({
+        label: item.label,
+        kind: item.kind === 'variable' ? 6 : 14, // Variable or Keyword
+        detail: item.detail,
+        documentation: item.documentation,
+        insertText: item.insertText,
+      })),
+    )
   }
+
+  // Set up diagnostics handling
+  lspClient.onDiagnostics((uri, diagnostics) => {
+    const model = monacoInstance.editor
+      .getModels()
+      .find((m: monacoEditor.editor.ITextModel) => m.uri.toString() === uri)
+    if (model) {
+      const markers = diagnostics.map((d) => ({
+        severity:
+          d.severity === DiagnosticSeverity.Error
+            ? monacoInstance.MarkerSeverity.Error
+            : d.severity === DiagnosticSeverity.Warning
+              ? monacoInstance.MarkerSeverity.Warning
+              : monacoInstance.MarkerSeverity.Info,
+        startLineNumber: d.range.start.line + 1,
+        startColumn: d.range.start.character + 1,
+        endLineNumber: d.range.end.line + 1,
+        endColumn: d.range.end.character + 1,
+        message: d.message,
+        source: d.source || 'dae',
+      }))
+      monacoInstance.editor.setModelMarkers(model, 'dae', markers)
+    }
+  })
+
 }
 
 // Handler for beforeMount prop in Editor component
