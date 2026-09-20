@@ -188,7 +188,7 @@ export const v2rayProtocol: ProtocolConfig<V2rayFormValues> = {
 type SSFormValues = z.infer<typeof ssSchema>
 
 function generateSSLink(data: SSFormValues): string {
-  let link = `ss://${Base64.encode(`${data.method}:${data.password}`)}@${data.server}:${data.port}/`
+  let link = `ss://${Base64.encodeURI(`${data.method}:${data.password}`)}@${data.server}:${data.port}/`
 
   if (data.plugin) {
     const plugin: string[] = [data.plugin]
@@ -236,7 +236,7 @@ export const ssProtocol: ProtocolConfig<SSFormValues> = {
 type SSRFormValues = z.infer<typeof ssrSchema>
 
 function generateSSRLink(data: SSRFormValues): string {
-  return `ssr://${Base64.encode(
+  return `ssr://${Base64.encodeURI(
     `${data.server}:${data.port}:${data.proto}:${data.method}:${data.obfs}:${Base64.encodeURI(
       data.password,
     )}/?remarks=${Base64.encodeURI(data.name)}&protoparam=${Base64.encodeURI(

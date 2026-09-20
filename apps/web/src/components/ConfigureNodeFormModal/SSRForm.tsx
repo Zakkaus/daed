@@ -15,7 +15,7 @@ export type SSRFormValues = z.infer<typeof ssrSchema>
 
 function generateSSRLink(data: SSRFormValues): string {
   /* ssr://server:port:proto:method:obfs:URLBASE64(password)/?remarks=URLBASE64(remarks)&protoparam=URLBASE64(protoparam)&obfsparam=URLBASE64(obfsparam)) */
-  return `ssr://${Base64.encode(
+  return `ssr://${Base64.encodeURI(
     `${data.server}:${data.port}:${data.proto}:${data.method}:${data.obfs}:${Base64.encodeURI(
       data.password,
     )}/?remarks=${Base64.encodeURI(data.name)}&protoparam=${Base64.encodeURI(

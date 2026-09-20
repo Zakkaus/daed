@@ -15,7 +15,7 @@ export type SSFormValues = z.infer<typeof ssSchema>
 
 function generateSSLink(data: SSFormValues): string {
   /* ss://BASE64(method:password)@server:port#name */
-  let link = `ss://${Base64.encode(`${data.method}:${data.password}`)}@${data.server}:${data.port}/`
+  let link = `ss://${Base64.encodeURI(`${data.method}:${data.password}`)}@${data.server}:${data.port}/`
 
   if (data.plugin) {
     const plugin: string[] = [data.plugin]

@@ -31,3 +31,12 @@ it.each([
 
   expect(JSON.parse(Base64.decode(link.slice('vmess://'.length)))).toMatchObject(expected)
 })
+
+it('encodes ss and ssr links with URL-safe base64', async () => {
+  const { ssProtocol, ssrProtocol } = await import('./complex')
+  // '>>?' encodes to Pj4/ in standard base64 and Pj4_ in the URL-safe alphabet.
+  const ss = ssProtocol.generateLink({ ...ssProtocol.defaultValues, method: 'aes-256-gcm', password: '>>?', server: 'h', port: 1 })
+  expect(ss.slice('ss://'.length, ss.indexOf('@'))).toMatch(/^[\w-]+$/)
+  const ssr = ssrProtocol.generateLink({ ...ssrProtocol.defaultValues, server: 'h', port: 1, password: '>>?' })
+  expect(ssr.slice('ssr://'.length)).toMatch(/^[\w-]+$/)
+})
