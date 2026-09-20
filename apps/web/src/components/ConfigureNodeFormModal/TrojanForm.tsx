@@ -95,7 +95,7 @@ export function TrojanForm({ onLinkGeneration, initialValues, actionsPortal }: N
         label={t('configureNode.protocol')}
         withAsterisk
         data={[
-          { label: 'origin', value: 'origin' },
+          { label: t('configureNode.origin'), value: 'origin' },
           { label: 'shadowsocks', value: 'shadowsocks' },
         ]}
         value={formValues.method}
@@ -104,7 +104,7 @@ export function TrojanForm({ onLinkGeneration, initialValues, actionsPortal }: N
 
       {formValues.method === 'shadowsocks' && (
         <Select
-          label="Shadowsocks Cipher"
+          label={t('configureNode.cipher')}
           withAsterisk
           data={[
             { label: 'aes-128-gcm', value: 'aes-128-gcm' },
@@ -119,7 +119,7 @@ export function TrojanForm({ onLinkGeneration, initialValues, actionsPortal }: N
 
       {formValues.method === 'shadowsocks' && (
         <Input
-          label="Shadowsocks password"
+          label={t('configureNode.shadowsocksPassword')}
           withAsterisk
           value={formValues.ssPassword}
           onChange={(e) => setValue('ssPassword', e.target.value)}
@@ -133,10 +133,14 @@ export function TrojanForm({ onLinkGeneration, initialValues, actionsPortal }: N
         onCheckedChange={(checked) => setValue('allowInsecure', !!checked)}
       />
 
-      <Input label="SNI(Peer)" value={formValues.peer} onChange={(e) => setValue('peer', e.target.value)} />
+      <Input
+        label={t('configureNode.sniPeer')}
+        value={formValues.peer}
+        onChange={(e) => setValue('peer', e.target.value)}
+      />
 
       <Select
-        label="Obfs"
+        label={t('configureNode.obfs')}
         data={[
           { label: t('configureNode.noObfuscation'), value: 'none' },
           { label: 'websocket', value: 'websocket' },

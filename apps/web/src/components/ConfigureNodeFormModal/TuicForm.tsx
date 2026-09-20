@@ -100,7 +100,7 @@ export function TuicForm({ onLinkGeneration, initialValues, actionsPortal }: Nod
       <Select
         label={t('configureNode.udpRelayMode')}
         data={[
-          { label: 'native', value: 'native' },
+          { label: t('configureNode.native'), value: 'native' },
           { label: 'quic', value: 'quic' },
         ]}
         value={formValues.udp_relay_mode}

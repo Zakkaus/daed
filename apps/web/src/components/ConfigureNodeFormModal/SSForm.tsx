@@ -109,24 +109,24 @@ export function SSForm({ onLinkGeneration, initialValues, actionsPortal }: NodeF
       />
 
       <Select
-        label="Method"
+        label={t('configureNode.method')}
         withAsterisk
         data={[
           { label: 'aes-128-gcm', value: 'aes-128-gcm' },
           { label: 'aes-256-gcm', value: 'aes-256-gcm' },
           { label: 'chacha20-poly1305', value: 'chacha20-poly1305' },
           { label: 'chacha20-ietf-poly1305', value: 'chacha20-ietf-poly1305' },
-          { label: 'plain', value: 'plain' },
-          { label: 'none', value: 'none' },
+          { label: t('configureNode.plain'), value: 'plain' },
+          { label: t('configureNode.none'), value: 'none' },
         ]}
         value={formValues.method}
         onChange={(val) => setValue('method', (val || 'aes-128-gcm') as SSFormValues['method'])}
       />
 
       <Select
-        label="Plugin"
+        label={t('configureNode.plugin')}
         data={[
-          { label: 'off', value: '' },
+          { label: t('configureNode.off'), value: '' },
           { label: 'simple-obfs', value: 'simple-obfs' },
           { label: 'v2ray-plugin', value: 'v2ray-plugin' },
         ]}
@@ -136,11 +136,11 @@ export function SSForm({ onLinkGeneration, initialValues, actionsPortal }: NodeF
 
       {(formValues.plugin === 'simple-obfs' || formValues.plugin === 'v2ray-plugin') && (
         <Select
-          label="Impl"
+          label={t('configureNode.implementation')}
           data={[
-            { label: 'Keep Default', value: '' },
-            { label: 'chained', value: 'chained' },
-            { label: 'transport', value: 'transport' },
+            { label: t('configureNode.keepDefault'), value: '' },
+            { label: t('configureNode.chained'), value: 'chained' },
+            { label: t('configureNode.transport'), value: 'transport' },
           ]}
           value={formValues.impl}
           onChange={(val) => setValue('impl', (val || '') as SSFormValues['impl'])}
@@ -149,7 +149,7 @@ export function SSForm({ onLinkGeneration, initialValues, actionsPortal }: NodeF
 
       {formValues.plugin === 'simple-obfs' && (
         <Select
-          label="Obfs"
+          label={t('configureNode.obfs')}
           data={[
             { label: 'http', value: 'http' },
             { label: 'tls', value: 'tls' },
@@ -161,7 +161,7 @@ export function SSForm({ onLinkGeneration, initialValues, actionsPortal }: NodeF
 
       {formValues.plugin === 'v2ray-plugin' && (
         <Select
-          label="Mode"
+          label={t('configureNode.mode')}
           data={[{ label: 'websocket', value: 'websocket' }]}
           value={formValues.mode}
           onChange={(val) => setValue('mode', val || '')}
@@ -172,7 +172,7 @@ export function SSForm({ onLinkGeneration, initialValues, actionsPortal }: NodeF
         <Select
           label="TLS"
           data={[
-            { label: 'off', value: '' },
+            { label: t('configureNode.off'), value: '' },
             { label: 'tls', value: 'tls' },
           ]}
           value={formValues.tls}
@@ -182,12 +182,20 @@ export function SSForm({ onLinkGeneration, initialValues, actionsPortal }: NodeF
 
       {((formValues.plugin === 'simple-obfs' && (formValues.obfs === 'http' || formValues.obfs === 'tls')) ||
         formValues.plugin === 'v2ray-plugin') && (
-        <Input label="Host" value={formValues.host} onChange={(e) => setValue('host', e.target.value)} />
+        <Input
+          label={t('configureNode.host')}
+          value={formValues.host}
+          onChange={(e) => setValue('host', e.target.value)}
+        />
       )}
 
       {((formValues.plugin === 'simple-obfs' && formValues.obfs === 'http') ||
         formValues.plugin === 'v2ray-plugin') && (
-        <Input label="Path" value={formValues.path} onChange={(e) => setValue('path', e.target.value)} />
+        <Input
+          label={t('configureNode.path')}
+          value={formValues.path}
+          onChange={(e) => setValue('path', e.target.value)}
+        />
       )}
 
       {actionsPortal ? (

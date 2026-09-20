@@ -65,14 +65,23 @@ export function Hysteria2Form({ onLinkGeneration, initialValues, actionsPortal }
         onChange={(val) => setValue('port', Number(val))}
       />
       <Input
-        label="Ports (Hopping)"
+        label={t('configureNode.hoppingPorts')}
         placeholder="10000-20000,443"
         value={formValues.ports || ''}
         onChange={(e) => setValue('ports', e.target.value)}
       />
-      <Input label="Auth" withAsterisk value={formValues.auth} onChange={(e) => setValue('auth', e.target.value)} />
+      <Input
+        label={t('configureNode.auth')}
+        withAsterisk
+        value={formValues.auth}
+        onChange={(e) => setValue('auth', e.target.value)}
+      />
       <Input label="SNI" value={formValues.sni} onChange={(e) => setValue('sni', e.target.value)} />
-      <Input label="Pin SHA256" value={formValues.pinSHA256} onChange={(e) => setValue('pinSHA256', e.target.value)} />
+      <Input
+        label={t('configureNode.pinSHA256')}
+        value={formValues.pinSHA256}
+        onChange={(e) => setValue('pinSHA256', e.target.value)}
+      />
       <Checkbox
         label={t('allowInsecure')}
         checked={formValues.allowInsecure}

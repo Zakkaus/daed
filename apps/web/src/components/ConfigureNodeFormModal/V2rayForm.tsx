@@ -79,11 +79,11 @@ export function V2rayForm({ onLinkGeneration, initialValues, actionsPortal }: No
         <Select
           label={t('configureNode.security')}
           data={[
-            { label: 'auto', value: 'auto' },
+            { label: t('configureNode.auto'), value: 'auto' },
             { label: 'aes-128-gcm', value: 'aes-128-gcm' },
             { label: 'chacha20-poly1305', value: 'chacha20-poly1305' },
-            { label: 'none', value: 'none' },
-            { label: 'zero', value: 'zero' },
+            { label: t('configureNode.none'), value: 'none' },
+            { label: t('configureNode.zero'), value: 'zero' },
           ]}
           value={formValues.scy}
           onChange={(val) => setValue('scy', (val || 'auto') as V2rayFormValues['scy'])}
@@ -94,7 +94,7 @@ export function V2rayForm({ onLinkGeneration, initialValues, actionsPortal }: No
         <Select
           label="TLS"
           data={[
-            { label: 'off', value: 'none' },
+            { label: t('configureNode.off'), value: 'none' },
             { label: 'tls', value: 'tls' },
             { label: 'reality', value: 'reality' },
           ]}
@@ -124,8 +124,8 @@ export function V2rayForm({ onLinkGeneration, initialValues, actionsPortal }: No
               { label: 'edge', value: 'edge' },
               { label: 'ios', value: 'ios' },
               { label: 'android', value: 'android' },
-              { label: 'random', value: 'random' },
-              { label: 'randomized', value: 'randomized' },
+              { label: t('configureNode.random'), value: 'random' },
+              { label: t('configureNode.randomized'), value: 'randomized' },
             ]}
             value={formValues.fp || 'chrome'}
             onChange={(val) => setValue('fp', val || 'chrome')}
@@ -145,9 +145,9 @@ export function V2rayForm({ onLinkGeneration, initialValues, actionsPortal }: No
       )}
 
       <Select
-        label="Flow"
+        label={t('configureNode.flow')}
         data={[
-          { label: 'none', value: 'none' },
+          { label: t('configureNode.none'), value: 'none' },
           { label: 'xtls-rprx-vision', value: 'xtls-rprx-vision' },
           { label: 'xtls-rprx-vision-udp443', value: 'xtls-rprx-vision-udp443' },
         ]}
@@ -157,7 +157,7 @@ export function V2rayForm({ onLinkGeneration, initialValues, actionsPortal }: No
 
       {formValues.tls !== 'none' && (
         <Checkbox
-          label="AllowInsecure"
+          label={t('allowInsecure')}
           checked={formValues.allowInsecure}
           onCheckedChange={(checked) => setValue('allowInsecure', !!checked)}
         />
@@ -229,7 +229,7 @@ export function V2rayForm({ onLinkGeneration, initialValues, actionsPortal }: No
           <Input label="ALPN" value={formValues.alpn} onChange={(e) => setValue('alpn', e.target.value)} />
           <Input
             label="ECH"
-            placeholder="Encrypted Client Hello"
+            placeholder={t('configureNode.encryptedClientHello')}
             value={formValues.ech}
             onChange={(e) => setValue('ech', e.target.value)}
           />
@@ -249,24 +249,32 @@ export function V2rayForm({ onLinkGeneration, initialValues, actionsPortal }: No
       )}
 
       {formValues.net === 'kcp' && (
-        <Input label="Seed" value={formValues.path} onChange={(e) => setValue('path', e.target.value)} />
+        <Input
+          label={t('configureNode.seedObfuscation')}
+          value={formValues.path}
+          onChange={(e) => setValue('path', e.target.value)}
+        />
       )}
 
       {formValues.net === 'grpc' && (
         <>
-          <Input label="ServiceName" value={formValues.path} onChange={(e) => setValue('path', e.target.value)} />
+          <Input
+            label={t('configureNode.serviceName')}
+            value={formValues.path}
+            onChange={(e) => setValue('path', e.target.value)}
+          />
           <Select
-            label="gRPC Mode"
+            label={t('configureNode.grpcMode')}
             data={[
               { label: 'gun', value: 'gun' },
-              { label: 'multi', value: 'multi' },
+              { label: t('configureNode.multi'), value: 'multi' },
               { label: 'guna', value: 'guna' },
             ]}
             value={formValues.grpcMode}
             onChange={(val) => setValue('grpcMode', (val || 'gun') as V2rayFormValues['grpcMode'])}
           />
           <Input
-            label="Authority"
+            label={t('configureNode.authority')}
             value={formValues.grpcAuthority}
             onChange={(e) => setValue('grpcAuthority', e.target.value)}
           />
@@ -276,12 +284,12 @@ export function V2rayForm({ onLinkGeneration, initialValues, actionsPortal }: No
       {formValues.net === 'xhttp' && (
         <>
           <Input
-            label="XHTTP Mode"
+            label={t('configureNode.xhttpMode')}
             value={formValues.xhttpMode}
             onChange={(e) => setValue('xhttpMode', e.target.value)}
           />
           <Input
-            label="XHTTP Extra"
+            label={t('configureNode.xhttpExtra')}
             value={formValues.xhttpExtra}
             onChange={(e) => setValue('xhttpExtra', e.target.value)}
           />

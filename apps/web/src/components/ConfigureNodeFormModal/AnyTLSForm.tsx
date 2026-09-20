@@ -44,7 +44,12 @@ export function AnyTLSForm({ onLinkGeneration, initialValues, actionsPortal }: N
         value={formValues.port}
         onChange={(val) => setValue('port', Number(val))}
       />
-      <Input label="Auth" withAsterisk value={formValues.auth} onChange={(e) => setValue('auth', e.target.value)} />
+      <Input
+        label={t('configureNode.auth')}
+        withAsterisk
+        value={formValues.auth}
+        onChange={(e) => setValue('auth', e.target.value)}
+      />
       <Input label="SNI" value={formValues.sni} onChange={(e) => setValue('sni', e.target.value)} />
       <Checkbox
         label={t('allowInsecure')}

@@ -66,7 +66,7 @@ export function SSRForm({ onLinkGeneration, initialValues, actionsPortal }: Node
       />
 
       <Select
-        label="Method"
+        label={t('configureNode.method')}
         withAsterisk
         data={[
           { label: 'aes-128-cfb', value: 'aes-128-cfb' },
@@ -91,7 +91,7 @@ export function SSRForm({ onLinkGeneration, initialValues, actionsPortal }: Node
           { label: 'idea-cfb', value: 'idea-cfb' },
           { label: 'rc2-cfb', value: 'rc2-cfb' },
           { label: 'seed-cfb', value: 'seed-cfb' },
-          { label: 'none', value: 'none' },
+          { label: t('configureNode.none'), value: 'none' },
         ]}
         value={formValues.method}
         onChange={(val) => setValue('method', (val || 'aes-128-cfb') as SSRFormValues['method'])}
@@ -101,7 +101,7 @@ export function SSRForm({ onLinkGeneration, initialValues, actionsPortal }: Node
         label={t('configureNode.protocol')}
         withAsterisk
         data={[
-          { label: 'origin', value: 'origin' },
+          { label: t('configureNode.origin'), value: 'origin' },
           { label: 'verify_sha1', value: 'verify_sha1' },
           { label: 'auth_sha1_v4', value: 'auth_sha1_v4' },
           { label: 'auth_aes128_md5', value: 'auth_aes128_md5' },
@@ -125,7 +125,7 @@ export function SSRForm({ onLinkGeneration, initialValues, actionsPortal }: Node
         label={t('configureNode.obfs')}
         withAsterisk
         data={[
-          { label: 'plain', value: 'plain' },
+          { label: t('configureNode.plain'), value: 'plain' },
           { label: 'http_simple', value: 'http_simple' },
           { label: 'http_post', value: 'http_post' },
           { label: 'random_head', value: 'random_head' },
