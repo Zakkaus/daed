@@ -53,7 +53,7 @@ const v2rayFormSchema = v2raySchema.extend({
 
 type V2rayFormValues = z.infer<typeof v2rayFormSchema>
 
-function generateV2rayLink(data: V2rayFormValues): string {
+export function generateV2rayLink(data: V2rayFormValues): string {
   const {
     protocol,
     net,
@@ -132,9 +132,15 @@ function generateV2rayLink(data: V2rayFormValues): string {
   if (protocol === 'vmess') {
     const body: Record<string, unknown> = structuredClone(data)
 
+    // Keep only the header types the transport accepts; a type left over
+    // from another transport is rejected by dae.
     switch (net) {
-      case 'kcp':
       case 'tcp':
+        if (type !== 'http') body.type = 'none'
+        break
+      case 'kcp':
+        if (type === 'http') body.type = 'none'
+        break
       default:
         body.type = ''
     }
@@ -143,10 +149,10 @@ function generateV2rayLink(data: V2rayFormValues): string {
       case 'ws':
       case 'httpupgrade':
       case 'xhttp':
-        break
       case 'h2':
       case 'grpc':
       case 'kcp':
+        break
       default:
         if (body.net === 'tcp' && body.type === 'http') {
           break
