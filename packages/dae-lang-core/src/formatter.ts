@@ -161,9 +161,37 @@ export function findCommentStart(line: string): number {
 }
 
 /**
- * Format the content of a line (normalize spacing)
+ * Format the content of a line (normalize spacing). Quoted literals are left
+ * exactly as written: they carry process names, regular expressions and
+ * domains where a space or an arrow is part of the value.
  */
 export function formatLineContent(content: string): string {
+  if (!content) return ''
+
+  let formatted = ''
+  let segmentStart = 0
+  let quote: string | null = null
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i]
+    if (quote === null) {
+      if (char === "'" || char === '"') {
+        formatted += normalizeSpacing(content.slice(segmentStart, i))
+        segmentStart = i
+        quote = char
+      }
+    } else if (char === quote) {
+      formatted += content.slice(segmentStart, i + 1)
+      segmentStart = i + 1
+      quote = null
+    }
+  }
+  // An unterminated quote is kept verbatim to the end of the line.
+  formatted += quote === null ? normalizeSpacing(content.slice(segmentStart)) : content.slice(segmentStart)
+
+  return formatted.trim()
+}
+
+function normalizeSpacing(content: string): string {
   if (!content) return ''
 
   // Collapse multiple spaces first so subsequent patterns only need to handle
@@ -201,9 +229,6 @@ export function formatLineContent(content: string): string {
   // Normalize brace spacing
   formatted = formatted.replace(RE_BRACE_OPEN, '{ ')
   formatted = formatted.replace(RE_BRACE_CLOSE, ' }')
-
-  // Trim any leading/trailing whitespace
-  formatted = formatted.trim()
 
   return formatted
 }

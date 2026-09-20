@@ -94,6 +94,12 @@ describe('parseLine', () => {
 })
 
 describe('formatLineContent', () => {
+  it('leaves quoted literals untouched', () => {
+    expect(formatLineContent("pname('My  App',  'b') ->proxy")).toBe("pname('My  App', 'b') -> proxy")
+    expect(formatLineContent('domain(regexp:"a->b&&c" )->  direct')).toBe('domain(regexp:"a->b&&c") -> direct')
+    expect(formatLineContent("pname('unterminated  ->")).toBe("pname('unterminated  ->")
+  })
+
   it('should return empty string for empty input', () => {
     expect(formatLineContent('')).toBe('')
   })
