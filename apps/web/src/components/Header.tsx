@@ -1,4 +1,5 @@
 import { useStore } from '@nanostores/react'
+import { ClientError } from 'graphql-request'
 import {
   ChevronDown,
   CloudOff,
@@ -42,6 +43,7 @@ import { Separator } from '~/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '~/components/ui/sheet'
 import { Switch } from '~/components/ui/switch'
 import { SimpleTooltip } from '~/components/ui/tooltip'
+import { translateFormError } from '~/components/validation'
 import { useColorScheme } from '~/contexts'
 import { useDisclosure, useKeyboardShortcuts, useMediaQuery } from '~/hooks'
 import { i18n } from '~/i18n'
@@ -64,18 +66,18 @@ function GithubIcon({ className }: { className?: string }) {
 }
 
 const accountSettingsSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
+  username: z.string().min(1, 'validation.usernameRequired'),
   name: z.string().min(1),
 })
 
 const passwordChangeSchema = z
   .object({
-    currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string().min(6, 'New password must be at least 6 characters'),
+    currentPassword: z.string().min(1, 'validation.currentPasswordRequired'),
+    newPassword: z.string().min(6, 'validation.min'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Passwords do not match',
+    message: 'validation.passwordMismatch',
     path: ['confirmPassword'],
   })
 
@@ -275,8 +277,12 @@ export function HeaderWithActions() {
       setPasswordFormData({ currentPassword: '', newPassword: '', confirmPassword: '' })
       setPasswordFormErrors({})
       closePasswordChangeModal()
-    } catch {
-      setPasswordFormErrors({ currentPassword: t('password.current.incorrect') })
+    } catch (error) {
+      const message = error instanceof ClientError ? error.response.errors?.[0]?.message : undefined
+      setPasswordFormErrors({
+        currentPassword:
+          message === 'incorrect password' ? t('password.current.incorrect') : message || t('password.transportError'),
+      })
     }
   }
 
@@ -567,7 +573,7 @@ export function HeaderWithActions() {
                 withAsterisk
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                error={formErrors.username}
+                error={translateFormError(t, formErrors.username)}
               />
 
               <Input
@@ -575,7 +581,7 @@ export function HeaderWithActions() {
                 withAsterisk
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                error={formErrors.name}
+                error={translateFormError(t, formErrors.name)}
               />
 
               <div className="flex justify-center">
@@ -640,7 +646,7 @@ export function HeaderWithActions() {
                 placeholder={t('password.current.placeholder')}
                 value={passwordFormData.currentPassword}
                 onChange={(e) => setPasswordFormData({ ...passwordFormData, currentPassword: e.target.value })}
-                error={passwordFormErrors.currentPassword}
+                error={translateFormError(t, passwordFormErrors.currentPassword)}
               />
               <Input
                 type="password"
@@ -648,7 +654,7 @@ export function HeaderWithActions() {
                 placeholder={t('password.new.placeholder')}
                 value={passwordFormData.newPassword}
                 onChange={(e) => setPasswordFormData({ ...passwordFormData, newPassword: e.target.value })}
-                error={passwordFormErrors.newPassword}
+                error={translateFormError(t, passwordFormErrors.newPassword, { min: 6 })}
               />
               <Input
                 type="password"
@@ -656,7 +662,7 @@ export function HeaderWithActions() {
                 placeholder={t('password.confirm.placeholder')}
                 value={passwordFormData.confirmPassword}
                 onChange={(e) => setPasswordFormData({ ...passwordFormData, confirmPassword: e.target.value })}
-                error={passwordFormErrors.confirmPassword}
+                error={translateFormError(t, passwordFormErrors.confirmPassword)}
               />
               <Button type="submit" className="w-full" loading={updatePasswordMutation.isPending}>
                 {t('password.update')}

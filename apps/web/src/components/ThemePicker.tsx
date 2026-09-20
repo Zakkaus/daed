@@ -21,6 +21,7 @@ interface ThemePreviewCardProps {
 }
 
 function ThemePreviewCard({ theme, isDark, isSelected, onClick }: ThemePreviewCardProps) {
+  const { t } = useTranslation()
   const colors = isDark ? theme.dark : theme.light
 
   return (
@@ -46,7 +47,7 @@ function ThemePreviewCard({ theme, isDark, isSelected, onClick }: ThemePreviewCa
 
       {/* Theme name */}
       <span className="text-xs font-medium" style={{ color: colors.foreground }}>
-        {theme.name}
+        {t(theme.name, { defaultValue: theme.name })}
       </span>
 
       {/* Color preview */}

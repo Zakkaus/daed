@@ -1,5 +1,6 @@
 import type { Profile } from '~/store'
 import { useStore } from '@nanostores/react'
+import { useQueryClient } from '@tanstack/react-query'
 import { BookmarkPlus, Check, ChevronDown, Layers, Pencil, RefreshCw, Save, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -13,6 +14,7 @@ import {
   useSelectDNSMutation,
   useSelectRoutingMutation,
 } from '~/apis'
+import { QUERY_KEY_CONFIG, QUERY_KEY_DNS, QUERY_KEY_ROUTING } from '~/constants'
 import { cn } from '~/lib/utils'
 import { profilesAtom } from '~/store'
 
@@ -44,6 +46,7 @@ function generateProfileId(): string {
 
 export function ProfileSwitcher() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const profilesState = useStore(profilesAtom)
   const { profiles, currentProfileID } = profilesState
 
@@ -101,6 +104,22 @@ export function ProfileSwitcher() {
   const handleSwitchProfile = async (profile: Profile) => {
     setIsSwitching(true)
     setDropdownOpen(false)
+    const steps = [
+      {
+        resource: 'config',
+        id: profile.configID,
+        previousID: selectedConfig?.id,
+        select: selectConfigMutation.mutateAsync,
+      },
+      {
+        resource: 'routing',
+        id: profile.routingID,
+        previousID: selectedRouting?.id,
+        select: selectRoutingMutation.mutateAsync,
+      },
+      { resource: 'dns', id: profile.dnsID, previousID: selectedDNS?.id, select: selectDNSMutation.mutateAsync },
+    ] as const
+    let completed = 0
 
     try {
       // Check if the resources still exist
@@ -109,16 +128,14 @@ export function ProfileSwitcher() {
       const dnsExists = dnssQuery?.dnss.some((d) => d.id === profile.dnsID)
 
       if (!configExists || !routingExists || !dnsExists) {
-        toast.error('Some resources in this profile no longer exist')
+        toast.error(t('profile.missingResources'))
         return
       }
 
-      // Switch to the profile's resources
-      await Promise.all([
-        selectConfigMutation.mutateAsync({ id: profile.configID }),
-        selectRoutingMutation.mutateAsync({ id: profile.routingID }),
-        selectDNSMutation.mutateAsync({ id: profile.dnsID }),
-      ])
+      for (const step of steps) {
+        await step.select({ id: step.id })
+        completed++
+      }
 
       profilesAtom.set({
         ...profilesState,
@@ -127,8 +144,28 @@ export function ProfileSwitcher() {
 
       toast.success(t('profile.switchSuccess'))
     } catch {
-      toast.error('Failed to switch profile')
+      const restoreFailures: string[] = []
+      for (let index = completed - 1; index >= 0; index--) {
+        const step = steps[index]
+        if (step.previousID === undefined) continue
+        try {
+          await step.select({ id: step.previousID })
+        } catch {
+          restoreFailures.push(t(step.resource))
+        }
+      }
+      toast.error(
+        t(restoreFailures.length ? 'profile.restoreFailed' : 'profile.switchFailed', {
+          step: t(steps[completed].resource),
+          resources: restoreFailures.join(', '),
+        }),
+      )
     } finally {
+      await Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY_CONFIG }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY_ROUTING }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY_DNS }),
+      ])
       setIsSwitching(false)
     }
   }

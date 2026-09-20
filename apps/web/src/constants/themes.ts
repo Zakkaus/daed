@@ -54,7 +54,7 @@ export interface ThemeDefinition {
 // Amber/Gold theme (current default)
 export const amberTheme: ThemeDefinition = {
   id: 'amber',
-  name: 'Amber',
+  name: 'themes.amber',
   light: {
     background: 'oklch(0.99 0.008 85)',
     foreground: 'oklch(0.18 0.02 60)',
@@ -126,7 +126,7 @@ export const amberTheme: ThemeDefinition = {
 // Ocean Blue theme
 export const oceanTheme: ThemeDefinition = {
   id: 'ocean',
-  name: 'Ocean',
+  name: 'themes.ocean',
   light: {
     background: 'oklch(0.99 0.005 230)',
     foreground: 'oklch(0.18 0.02 230)',
@@ -198,7 +198,7 @@ export const oceanTheme: ThemeDefinition = {
 // Rose/Pink theme
 export const roseTheme: ThemeDefinition = {
   id: 'rose',
-  name: 'Rose',
+  name: 'themes.rose',
   light: {
     background: 'oklch(0.99 0.008 350)',
     foreground: 'oklch(0.18 0.02 350)',
@@ -270,7 +270,7 @@ export const roseTheme: ThemeDefinition = {
 // Emerald/Green theme
 export const emeraldTheme: ThemeDefinition = {
   id: 'emerald',
-  name: 'Emerald',
+  name: 'themes.emerald',
   light: {
     background: 'oklch(0.99 0.005 160)',
     foreground: 'oklch(0.18 0.02 160)',
@@ -342,7 +342,7 @@ export const emeraldTheme: ThemeDefinition = {
 // Violet/Purple theme
 export const violetTheme: ThemeDefinition = {
   id: 'violet',
-  name: 'Violet',
+  name: 'themes.violet',
   light: {
     background: 'oklch(0.99 0.008 280)',
     foreground: 'oklch(0.18 0.02 280)',
@@ -414,7 +414,7 @@ export const violetTheme: ThemeDefinition = {
 // Slate/Neutral theme
 export const slateTheme: ThemeDefinition = {
   id: 'slate',
-  name: 'Slate',
+  name: 'themes.slate',
   light: {
     background: 'oklch(0.99 0.002 260)',
     foreground: 'oklch(0.15 0.01 260)',
@@ -486,7 +486,7 @@ export const slateTheme: ThemeDefinition = {
 // Sunset/Orange theme
 export const sunsetTheme: ThemeDefinition = {
   id: 'sunset',
-  name: 'Sunset',
+  name: 'themes.sunset',
   light: {
     background: 'oklch(0.99 0.008 45)',
     foreground: 'oklch(0.18 0.02 30)',
@@ -558,7 +558,7 @@ export const sunsetTheme: ThemeDefinition = {
 // Teal theme
 export const tealTheme: ThemeDefinition = {
   id: 'teal',
-  name: 'Teal',
+  name: 'themes.teal',
   light: {
     background: 'oklch(0.99 0.005 185)',
     foreground: 'oklch(0.18 0.02 185)',
