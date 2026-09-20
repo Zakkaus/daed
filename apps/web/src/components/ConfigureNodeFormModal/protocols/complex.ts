@@ -398,6 +398,7 @@ function generateHysteria2Link(data: Hysteria2FormValues): string {
     auth: data.auth,
     host: data.server,
     port: data.port,
+    hash: data.name,
     params: query,
   })
 }
@@ -429,6 +430,7 @@ export function generateAnytlsLink(data: AnytlsFormValues): string {
     auth: data.auth,
     host: data.server,
     port: data.port,
+    hash: data.name,
     params: query,
   })
 }
