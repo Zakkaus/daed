@@ -55,7 +55,7 @@ import { useSetValue } from '~/hooks/useSetValue'
 import { FormActions } from './FormActions'
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, 'validation.nameRequired'),
   logLevelNumber: z.number().min(0).max(4),
   tproxyPort: z.number(),
   allowInsecure: z.boolean(),
@@ -64,8 +64,8 @@ const schema = z.object({
   sniffingTimeoutMS: z.number(),
   lanInterface: z.array(z.string()),
   wanInterface: z.array(z.string()),
-  udpCheckDns: z.array(z.string().min(1, 'Required')).min(1),
-  tcpCheckUrl: z.array(z.string().min(1, 'Required')).min(1),
+  udpCheckDns: z.array(z.string().min(1, 'validation.required')).min(1),
+  tcpCheckUrl: z.array(z.string().min(1, 'validation.required')).min(1),
   dialMode: z.string(),
   tcpCheckHttpMethod: z.string(),
   disableWaitingNetwork: z.boolean(),
@@ -262,7 +262,7 @@ export function ConfigFormDrawer({
                 withAsterisk
                 value={formValues.name}
                 onChange={(e) => setValue('name', e.target.value)}
-                error={errors.name?.message}
+                error={errors.name?.message && t(errors.name.message, { defaultValue: errors.name.message })}
                 disabled={!!editingID}
               />
 

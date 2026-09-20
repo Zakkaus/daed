@@ -46,7 +46,10 @@ export function FormActions<T extends FieldValues = FieldValues>({
   const errorSummary =
     errors && Object.keys(errors).length > 0
       ? Object.entries(errors)
-          .map(([field, error]) => `${field}: ${(error as { message?: string })?.message || 'Invalid'}`)
+          .map(([field, error]) => {
+            const message = typeof error?.message === 'string' ? error.message : 'validation.invalid'
+            return `${field}: ${t(message, { defaultValue: message })}`
+          })
           .join('\n')
       : null
 

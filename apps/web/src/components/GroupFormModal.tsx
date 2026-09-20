@@ -14,7 +14,7 @@ import { useSetValue } from '~/hooks/useSetValue'
 import { Policy } from '~/schemas/gql/graphql'
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, 'validation.nameRequired'),
   policy: z.nativeEnum(Policy),
   policyParams: z.array(z.object({ key: z.string(), val: z.string() })),
 })
@@ -125,11 +125,12 @@ export function GroupFormModal({
   ]
 
   const onSubmit = async (data: FormValues) => {
-    const policyParams = data.policy === Policy.Fixed
-      ? editingID && origins?.policy === Policy.Fixed
-        ? origins.policyParams
-        : [{ key: '', val: '0' }]
-      : []
+    const policyParams =
+      data.policy === Policy.Fixed
+        ? editingID && origins?.policy === Policy.Fixed
+          ? origins.policyParams
+          : [{ key: '', val: '0' }]
+        : []
 
     if (editingID) {
       await groupSetPolicyMutation.mutateAsync({
@@ -161,7 +162,7 @@ export function GroupFormModal({
               label={t('name')}
               value={formValues.name}
               onChange={(e) => setValue('name', e.target.value)}
-              error={errors.name?.message}
+              error={errors.name?.message && t(errors.name.message, { defaultValue: errors.name.message })}
               disabled={!!editingID}
             />
 

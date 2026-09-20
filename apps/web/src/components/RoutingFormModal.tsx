@@ -21,8 +21,8 @@ import { DaeEditor } from './DaeEditor'
 import { FormActions } from './FormActions'
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  text: z.string().min(1, 'Text is required'),
+  name: z.string().min(1, 'validation.nameRequired'),
+  text: z.string().min(1, 'validation.textRequired'),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -84,8 +84,7 @@ function detectSimpleMode(text: string, proxyGroupName: string) {
 
   const hasGfw = withoutMac.includes(`domain(geosite:gfw) -> ${proxyGroupName}`)
   const hasCnDirect =
-    withoutMac.includes('dip(geoip:cn) -> direct') &&
-    withoutMac.includes('domain(geosite:cn) -> direct')
+    withoutMac.includes('dip(geoip:cn) -> direct') && withoutMac.includes('domain(geosite:cn) -> direct')
   const hasCnProxy =
     withoutMac.includes(`dip(geoip:cn) -> ${proxyGroupName}`) &&
     withoutMac.includes(`domain(geosite:cn) -> ${proxyGroupName}`)
@@ -218,15 +217,22 @@ export function RoutingFormModal({
     if (opened && proxyGroupReady && !editingID && activeTab === 'simple' && formValues.text === '') {
       setValue(
         'text',
-        buildRoutingTemplate(
-          simpleMode,
-          proxyGroupName,
-          macControlEnabled ? cleanedMacList : undefined,
-          macAction,
-        ),
+        buildRoutingTemplate(simpleMode, proxyGroupName, macControlEnabled ? cleanedMacList : undefined, macAction),
       )
     }
-  }, [opened, proxyGroupReady, editingID, activeTab, formValues.text, simpleMode, proxyGroupName, macControlEnabled, cleanedMacList, macAction, setValue])
+  }, [
+    opened,
+    proxyGroupReady,
+    editingID,
+    activeTab,
+    formValues.text,
+    simpleMode,
+    proxyGroupName,
+    macControlEnabled,
+    cleanedMacList,
+    macAction,
+    setValue,
+  ])
 
   const initOrigins = useCallback(
     (nextOrigins: FormValues) => {
@@ -329,7 +335,7 @@ export function RoutingFormModal({
             withAsterisk
             value={formValues.name}
             onChange={(e) => setValue('name', e.target.value)}
-            error={errors.name?.message}
+            error={errors.name?.message && t(errors.name.message, { defaultValue: errors.name.message })}
             disabled={!!editingID}
             className="shrink-0"
           />
@@ -435,7 +441,11 @@ export function RoutingFormModal({
                 />
               </div>
 
-              {errors.text && <p className="text-xs text-destructive">{errors.text.message}</p>}
+              {errors.text && (
+                <p className="text-xs text-destructive">
+                  {errors.text.message && t(errors.text.message, { defaultValue: errors.text.message })}
+                </p>
+              )}
             </TabsContent>
           </Tabs>
 

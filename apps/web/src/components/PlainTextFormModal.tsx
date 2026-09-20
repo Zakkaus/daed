@@ -17,8 +17,8 @@ import { DaeEditor } from './DaeEditor'
 import { FormActions } from './FormActions'
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  text: z.string().min(1, 'Text is required'),
+  name: z.string().min(1, 'validation.nameRequired'),
+  text: z.string().min(1, 'validation.textRequired'),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -134,7 +134,7 @@ export function PlainTextFormModal({
             withAsterisk
             value={formValues.name}
             onChange={(e) => setValue('name', e.target.value)}
-            error={errors.name?.message}
+            error={errors.name?.message && t(errors.name.message, { defaultValue: errors.name.message })}
             disabled={!!editingID}
             className="shrink-0"
           />
@@ -149,7 +149,11 @@ export function PlainTextFormModal({
               />
             </div>
 
-            {errors.text && <p className="text-xs text-destructive">{errors.text.message}</p>}
+            {errors.text && (
+              <p className="text-xs text-destructive">
+                {errors.text.message && t(errors.text.message, { defaultValue: errors.text.message })}
+              </p>
+            )}
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="shrink-0">

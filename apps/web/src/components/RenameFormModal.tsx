@@ -1,8 +1,8 @@
+import type { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCallback, useImperativeHandle, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { z } from 'zod'
 
 import { useRenameConfigMutation, useRenameDNSMutation, useRenameGroupMutation, useRenameRoutingMutation } from '~/apis'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
@@ -12,9 +12,7 @@ import { useSetValue } from '~/hooks/useSetValue'
 
 import { FormActions } from './FormActions'
 
-const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
-})
+import { nameSchema as schema } from './validation'
 
 type FormValues = z.infer<typeof schema>
 
@@ -135,7 +133,7 @@ export function RenameFormModal({
               <Input
                 value={formValues.name}
                 onChange={(e) => setValue('name', e.target.value)}
-                error={errors.name?.message}
+                error={errors.name?.message && t(errors.name.message, { defaultValue: errors.name.message })}
               />
             </div>
 

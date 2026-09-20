@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 
 import { GenericNodeForm, getProtocols } from './protocols'
 
-const schema = z.object({ tag: z.string().min(1, 'This field is required') })
+const schema = z.object({ tag: z.string().min(1, 'validation.required') })
 
 type FormValues = z.infer<typeof schema>
 
@@ -108,7 +108,7 @@ export function ConfigureNodeFormModal({ opened, onClose }: { opened: boolean; o
               withAsterisk
               value={tag}
               onChange={(e) => setValue('tag', e.target.value)}
-              error={errors.tag?.message}
+              error={errors.tag?.message && t(errors.tag.message, { defaultValue: errors.tag.message })}
             />
 
             <Tabs defaultValue={defaultProtocol} className="w-full min-w-0">

@@ -13,9 +13,9 @@ import { Label } from './ui/label.tsx'
 import { Switch } from './ui/switch.tsx'
 
 const schema = z.object({
-  link: z.string().min(1, 'Link is required'),
-  tag: z.string().min(1, 'Tag is required'),
-  cronExp: z.string().min(1, 'Cron expression is required'),
+  link: z.string().min(1, 'validation.linkRequired'),
+  tag: z.string().min(1, 'validation.tagRequired'),
+  cronExp: z.string().min(1, 'validation.cronRequired'),
   cronEnable: z.boolean(),
 })
 
@@ -97,14 +97,14 @@ export function EditSubscriptionFormModal({ opened, onClose, subscription, onSub
             withAsterisk
             value={formValues.link}
             onChange={(e) => setValue('link', e.target.value)}
-            error={errors.link?.message}
+            error={errors.link?.message && t(errors.link.message, { defaultValue: errors.link.message })}
           />
           <Input
             label={t('tag')}
             withAsterisk
             value={formValues.tag}
             onChange={(e) => setValue('tag', e.target.value)}
-            error={errors.tag?.message}
+            error={errors.tag?.message && t(errors.tag.message, { defaultValue: errors.tag.message })}
           />
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -121,7 +121,7 @@ export function EditSubscriptionFormModal({ opened, onClose, subscription, onSub
                 withAsterisk
                 value={formValues.cronExp}
                 onChange={(e) => setValue('cronExp', e.target.value)}
-                error={errors.cronExp?.message}
+                error={errors.cronExp?.message && t(errors.cronExp.message, { defaultValue: errors.cronExp.message })}
                 placeholder="10 */6 * * *"
               />
             )}
