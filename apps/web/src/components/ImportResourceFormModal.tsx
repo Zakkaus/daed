@@ -1,6 +1,7 @@
+import type { SettledItem } from '~/apis/settled'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Minus, Plus } from 'lucide-react'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
@@ -20,11 +21,11 @@ const schema = z.object({
   resources: z
     .array(
       z.object({
-        link: z.string().min(1, 'Link is required'),
-        tag: z.string().min(1, 'Tag is required'),
+        link: z.string().min(1, 'validation.linkRequired'),
+        tag: z.string().min(1, 'validation.tagRequired'),
       }),
     )
-    .min(1, 'At least one resource is required'),
+    .min(1, 'validation.resourceRequired'),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -42,9 +43,10 @@ export function ImportResourceFormModal({
   title: string
   opened: boolean
   onClose: () => void
-  handleSubmit: (values: FormValues) => Promise<void>
+  handleSubmit: (values: FormValues) => Promise<void | SettledItem<{ link: string }>[]>
 }) {
   const { t } = useTranslation()
+  const [failures, setFailures] = useState<SettledItem<{ link: string }>[]>([])
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -74,11 +76,15 @@ export function ImportResourceFormModal({
     onClose()
     setTimeout(() => {
       reset(defaultValues)
+      setFailures([])
     }, 200)
   }, [onClose, reset])
 
   const onSubmit = async (data: FormValues) => {
-    await onSubmitProp(data)
+    const results = await onSubmitProp(data)
+    const failed = results?.filter((result) => result.status === 'error') ?? []
+    setFailures(failed)
+    if (failed.length) return
     handleClose()
   }
 
@@ -90,6 +96,18 @@ export function ImportResourceFormModal({
         </ScrollableDialogHeader>
         <ScrollableDialogBody>
           <form onSubmit={handleSubmit(onSubmit)}>
+            {failures.length > 0 && (
+              <div role="alert" className="mb-4 text-sm text-destructive">
+                <p>{t('subscriptionImportFailed')}</p>
+                <ul className="list-disc pl-5">
+                  {failures.map((failure, index) => (
+                    <li key={index} className="break-all">
+                      {failure.link}: {failure.error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="flex flex-col gap-5">
               {fields.map((field, i) => (
                 <div key={field.id} className="flex gap-2.5">
@@ -99,7 +117,10 @@ export function ImportResourceFormModal({
                     label={t('link')}
                     value={resources[i]?.link || ''}
                     onChange={(e) => setValue(`resources.${i}.link`, e.target.value)}
-                    error={errors.resources?.[i]?.link?.message}
+                    error={
+                      errors.resources?.[i]?.link?.message &&
+                      t(errors.resources[i].link.message, { defaultValue: errors.resources[i].link.message })
+                    }
                   />
                   <Input
                     wrapperClassName="w-24"
@@ -107,7 +128,10 @@ export function ImportResourceFormModal({
                     label={t('tag')}
                     value={resources[i]?.tag || ''}
                     onChange={(e) => setValue(`resources.${i}.tag`, e.target.value)}
-                    error={errors.resources?.[i]?.tag?.message}
+                    error={
+                      errors.resources?.[i]?.tag?.message &&
+                      t(errors.resources[i].tag.message, { defaultValue: errors.resources[i].tag.message })
+                    }
                   />
 
                   <div className="flex flex-col">

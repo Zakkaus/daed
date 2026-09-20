@@ -144,10 +144,16 @@ export function ProfileSwitcher() {
 
       toast.success(t('profile.switchSuccess'))
     } catch {
+      // The failed step may have committed before its response was lost, so it
+      // is restored too. A resource that had no selection cannot be restored:
+      // the backend has no deselect, so it is reported as not restored.
       const restoreFailures: string[] = []
-      for (let index = completed - 1; index >= 0; index--) {
+      for (let index = Math.min(completed, steps.length - 1); index >= 0; index--) {
         const step = steps[index]
-        if (step.previousID === undefined) continue
+        if (step.previousID === undefined) {
+          restoreFailures.push(t(step.resource))
+          continue
+        }
         try {
           await step.select({ id: step.previousID })
         } catch {

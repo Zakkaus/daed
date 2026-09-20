@@ -1,3 +1,4 @@
+import type { NodeLatencyProbeResult } from '~/apis'
 import type { QRCodeModalRef } from '~/components/QRCodeModal'
 import type { SubscriptionsQuery } from '~/schemas/gql/graphql'
 import { Droppable } from '@hello-pangea/dnd'
@@ -7,7 +8,6 @@ import { Fragment, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
-  type NodeLatencyProbeResult,
   useImportSubscriptionsMutation,
   useRemoveSubscriptionsMutation,
   useSubscriptionsQuery,
@@ -112,7 +112,23 @@ export function SubscriptionResource({
                 variant="ghost"
                 size="icon"
                 onClick={() => {
-                  updateSubscriptionsMutation.mutate(sortedSubscriptions.map(({ id }) => id))
+                  updateSubscriptionsMutation.mutate(
+                    sortedSubscriptions.map(({ id }) => id),
+                    {
+                      onSuccess: (results) => {
+                        for (const result of results) {
+                          if (result.status !== 'error') continue
+                          const subscription = sortedSubscriptions.find(({ id }) => id === result.id)
+                          toast.error(
+                            t('subscriptionUpdateFailed', {
+                              name: subscription?.tag || subscription?.link || result.id,
+                              error: result.error,
+                            }),
+                          )
+                        }
+                      },
+                    },
+                  )
                 }}
                 loading={updateSubscriptionsMutation.isPending}
               >
@@ -238,7 +254,7 @@ export function SubscriptionResource({
         opened={openedImportSubscriptionFormModal}
         onClose={closeImportSubscriptionFormModal}
         handleSubmit={async (values) => {
-          await importSubscriptionsMutation.mutateAsync(values.resources.map(({ link, tag }) => ({ link, tag })))
+          return importSubscriptionsMutation.mutateAsync(values.resources.map(({ link, tag }) => ({ link, tag })))
         }}
       />
 

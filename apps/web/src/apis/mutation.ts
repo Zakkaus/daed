@@ -7,14 +7,15 @@ import {
   QUERY_KEY_DNS,
   QUERY_KEY_GENERAL,
   QUERY_KEY_GROUP,
-  QUERY_KEY_NODE_LATENCY,
   QUERY_KEY_NODE,
+  QUERY_KEY_NODE_LATENCY,
   QUERY_KEY_ROUTING,
   QUERY_KEY_SUBSCRIPTION,
   QUERY_KEY_USER,
 } from '~/constants'
 import { useGQLQueryClient } from '~/contexts'
 import { graphql } from '~/schemas/gql'
+import { settledItems } from './settled'
 
 export function useSetJsonStorageMutation() {
   const gqlClient = useGQLQueryClient()
@@ -734,7 +735,7 @@ export function useImportSubscriptionsMutation() {
 
   return useMutation({
     mutationFn: (data: ImportArgument[]) =>
-      Promise.all(
+      Promise.allSettled(
         data.map((subscription) =>
           gqlClient.request(
             graphql(`
@@ -758,9 +759,15 @@ export function useImportSubscriptionsMutation() {
             },
           ),
         ),
+      ).then((results) =>
+        settledItems(
+          data.map(({ link }) => ({ link })),
+          results,
+        ),
       ),
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY_SUBSCRIPTION })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY_NODE })
     },
   })
 }
@@ -771,7 +778,7 @@ export function useUpdateSubscriptionsMutation() {
 
   return useMutation({
     mutationFn: (ids: string[]) =>
-      Promise.all(
+      Promise.allSettled(
         ids.map((id) =>
           gqlClient.request(
             graphql(`
@@ -786,8 +793,13 @@ export function useUpdateSubscriptionsMutation() {
             },
           ),
         ),
+      ).then((results) =>
+        settledItems(
+          ids.map((id) => ({ id })),
+          results,
+        ),
       ),
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY_SUBSCRIPTION })
       queryClient.invalidateQueries({ queryKey: QUERY_KEY_GROUP })
       queryClient.invalidateQueries({ queryKey: QUERY_KEY_GENERAL })
@@ -809,10 +821,7 @@ export function useTestNodeLatenciesMutation() {
 
   return useMutation({
     mutationFn: async (ids?: string[]) => {
-      const data = await gqlClient.request<
-        { testNodeLatencies: NodeLatencyProbeResult[] },
-        { ids?: string[] }
-      >(
+      const data = await gqlClient.request<{ testNodeLatencies: NodeLatencyProbeResult[] }, { ids?: string[] }>(
         `
           mutation TestNodeLatencies($ids: [ID!]) {
             testNodeLatencies(ids: $ids) {
