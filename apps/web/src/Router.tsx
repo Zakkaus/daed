@@ -13,7 +13,9 @@ export function Router() {
   return (
     <RouterType>
       <Routes>
-        <Route path="/" element={<MainLayout />}>
+        {/* Remount the authenticated tree per endpoint and token so query
+            observers never keep a cache from another account. */}
+        <Route path="/" element={<MainLayout key={`${endpointURL}|${token}`} />}>
           <Route index element={<OrchestratePage />} />
         </Route>
 
